@@ -115,25 +115,22 @@ Hypothetical: If the display of user flair was disabled in /r/thebutton, could w
 
 First, I've cleaned the data by removing comments with missing values for flair type (including [deleted] authors).  Additionally, to prevent bias on the most vocal of users, we only keep comments from users with less than 10 total comments in the population.  These cuts yield a total of 73,427 comments to work with.  Each comment body in the corpus was vectorized by TF-IDF.  Words required a minimum document occurence of 5. Bigrams were produced in addition to individual words.  I also excluded common stop words.
 
-I started with a simple model, classifying comments as either pressed (flair = "press-X") or has not pressed (flair = "no-press").  Reducing the number of classes simplifies the model and also increases the number of training points in each class.  A random subset of the data was held out as a validation set, with the remaining comments used for training.  I fit a simle logistic regression model on the training set, yielding an accuracy score on the validation set, acc = 0.630, and an ROC area-under-the-curve, AUC = 0.670.
+I started with a simple model, classifying comments as either pressed (flair = "press-X") or has not pressed (flair = "no-press").  Reducing the number of classes simplifies the model and also increases the number of training points in each class.  A random subset of the data was held out as a validation set, with the remaining comments used for training.  I fit a simple logistic regression model on the training set, yielding an accuracy score on the validation set, acc = 0.630, and an ROC area-under-the-curve, AUC = 0.670.
 
 ![roc_curve](figures/presser_lr_roc.png)
 
-
-The features with the strongest coefficients include (from strongest to less strong):
+Although not very strong, there is some predictive power, allowing the separation of pressers and non-pressers, based entirely on the contents of a comment.  The most important features, having the largest coefficients include (from strongest to less strong):
 
     filthy non, grey, shade, towel, waited, orange, day presser, regrets, 
     pure, 60s, remain, yellow, wanted, tempted, lucky, team60s, presser, 
     just pressed, clicked, signed, felt, stay, green, pressers, regret, 
     temptation, filthy pressers, red, lurking, strong
 
-<center>
 ![thebutton_wordcloud](figures/thebutton_wordcloud.png)
-</center>
 
-I also tried fitting a gradient boosting classifier to the training set.  I reduced the dimensionality of the features from over 9000 to 500 using TruncatedSVD.  I then ran the classifier with a learning rate = 0.1, max depth = 3, subsampling = 0.75, and 50 iterations.  The resulting accuracy and AUC are 0.627 and 0.650, respectively.  The logistic model outperformed the gradient boosting classifier (although there was not extensive tuning of gb parameters).
+In the hopes of improving the model, I fit a gradient boosting classifier model to the training set.  Because of the large number of features, I first reduced the dimensionality of the features from over 9000 down to 500 using TruncatedSVD.  Parameters used in the boosting classifer are: a learning rate = 0.1, max tree depth = 3, and sub-sampling = 0.75.  After 50 iterations, the resulting validation accuracy and ROC AUC are 0.627 and 0.650, respectively.  The logistic model outperformed the gradient boosting classifier (although extensive parameter tuning and longer runtime could improve the boosting classifier).
 
-We now look at a model that attempts to recover the flair color of a comment.  Here, only comments with flair_css_class == ‘press-?’ are considered.  With a logistic regression, the accuracy is 0.43, with the following confusion matrix:
+Going further, we now look at a model that attempts to recover the flair color of a comment.  Here, only comments from pressers are considered (flair_css_class = "press-X").  A logistic regression yields an accuracy = 0.43, and the following confusion matrix:
 
 |         | press-6 | press-5 | press-4 | press-3 | press-2 | press-1 |
 | ------- | ------- | ------- | ------- | ------- | ------- | ------- |
@@ -143,8 +140,6 @@ We now look at a model that attempts to recover the flair color of a comment.  H
 | press-3 | 505     |    0    |    3    |   57    |    9    |  169    |
 | press-2 | 666     |    4    |    2    |    0    |   94    |  280    |
 | press-1 | 841     |    2    |    4    |    3    |    7    | 1192    |
-
-Using a gradient boosting model, the number of True Positives increases for all classes, but decreases for the Press-1 class.  The accuracy remains small at 0.435.
 
 
 # /r/worldnews
