@@ -1,12 +1,12 @@
 # Reddit Comments May 2015
 
-This is a short exploratory analysis of comments posted on the [www.reddit.com](https://www.reddit.com) website during the month of May 2015.  The data can be retrieved here from [www.kaggle.com](https://www.kaggle.com/reddit/reddit-comments-may-2015).
+This is a short exploratory analysis of comments posted on the [www.reddit.com](https://www.reddit.com) website during the month of May 2015.  The data can be retrieved here from [www.kaggle.com](https://www.kaggle.com/reddit/reddit-comments-may-2015).  In the exploration I determined which subreddits were the most commented during the month of May.  I produced statistics regarding various attributes of comments (flair, edits, gold, etc.).  I also looked at comments that had received Reddit Gold, and compared them with the general population of comments.  For the subreddit /r/thebutton, I used text mining to build a predictive model that was able to forecast whether or not somebody pushed The Button, based on the body of a comment.  I also took a quick look at /r/worldnews hoping to find correlations among comment age, comment score, and the depth of a comment.  Finally, I produced a few wordclouds using comment text for /r/worldnews on various days.
 
 
 
-## Site-wide exploration
+## Simple Statistics
 
-Which subreddits had the most comments in May 2015?
+Which subreddits had the most comments in May 2015?  A simple SQL query shows /r/AskReddit is the leader by a far margin, followed by various subreddits including a few video game related subreddits.
 
 ```SQL
 SELECT subreddit, COUNT(subreddit) AS cnt
@@ -17,15 +17,16 @@ FROM May2015 GROUP BY subreddit;
 ![subreddit_popularity](figures/subreddit_popularity.png)
 </center>
 
-Of the 50,138 subreddits, the top 20 most commented subreddits account for 14,688,182 / 54,504,410 = 27% of all comments. 
+Of the 50,138 subreddits, the top 20 most commented subreddits account for 14,688,182 of the 54,504,410 total comments, or 27%. 
 
-Some other interesting statistics:
-* 33.9% of comments had author flair
-* 0.8% of comments were authored by ‘distinguished’ individuals (special, admin, moderator, etc.)
-* 3.1% of comments had been edited
-* 0.03% of comments were gilded with ‘reddit gold’
-* 28.7% of comments that had been gilded, were also edited.
+With over 50 million comments, site-wide statistics are slow to produce on a machine with limited RAM.  Some other interesting statistics include:
+* 33.9% of all comments contained author flair (an image or tagline associated with the author's name)
+* 0.8% of all comments were authored by ‘distinguished’ individuals ('special', 'admin', 'moderator', etc.)
+* 3.1% of all comments had been edited before the time of data retrieval
+* 0.03% of all comments were gilded (awarded by another user that purchased Reddit Gold)
+* 28.7% of comments that had been gilded, had also been edited
 
+To reduce the burden on RAM, we'll be looking at subsets of the data from here on.
 
 
 ## Gilded comments
@@ -111,7 +112,7 @@ Next, I’ve plotted the distribution of click times as reported in the flair (i
 There are peaks at around when a new flair color first becomes available.  There is a strong signal at t=0s and t=1s, where users are trying to keep the timer alive.  There is also a strong peak at t=42s.  This particular number must [have some meaning](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#Answer_to_the_Ultimate_Question_of_Life.2C_the_Universe.2C_and_Everything_.2842.29).  By far though, the most common click time was t=60s among vocal reddit users.  
 
 
-### Predicting Flair Color
+#### Predicting Flair Color
 
 If the flairs of each user were turned off, could we predict what flair they were given, based on the body of the comment?  We’ll build a model to determine if we can.  This model assumes that the body of a comment has correlations with the flair assigned to a user.  
 
