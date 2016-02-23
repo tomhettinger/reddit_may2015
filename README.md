@@ -8,8 +8,10 @@ This is a short exploratory analysis of comments posted on the [www.reddit.com](
 
 Which subreddits had the most comments in May 2015?
 
-    SELECT subreddit, COUNT(subreddit) AS cnt
-    FROM May2015 GROUP BY subreddit;
+```SQL
+SELECT subreddit, COUNT(subreddit) AS cnt
+FROM May2015 GROUP BY subreddit;
+```
 
 <center>
 ![subreddit_popularity](figures/subreddit_popularity.png)
@@ -30,10 +32,11 @@ Some other interesting statistics:
 
 As mentioned above, 0.03% of comments were gilded.  28.7% of all gilded comments had edits.  The prevalence of edits are attributed, in part, by thank you’s, which are found in 17% of all gilded comments and 50% of all edited, gilded comments.  For example,
 
-    “You can't leave Mouse out! 
+    “You can't leave Mouse out!  
     Edit: gold?  Awesome thank you!”
 
-    “CHICAGO PIZZA > NY PIZZA
+
+    “CHICAGO PIZZA > NY PIZZA  
     edit: thanks for the gold kind stranger!”
 
 The distribution of scores is significantly different for the gilded comments than the entire set.  Using randomly selected comments from the entire data set, the distribution of all scores compared to gilded looks like:
@@ -46,11 +49,11 @@ with (mean, standard deviation) = (536, 1062) and (6, 48) for gilded comments an
 
 In terms of subreddits, the most gilded subreddits are common with those subreddits with the most comments overall.  Eight of the most gilded subreddits do not appear in the top commented, including:
 
-    /r/promos, /r/gifs, /r/baseball, /r/IAmA, /r/thebutton, /r/tifu, /r/gaming, /r/politics.
+> /r/promos, /r/gifs, /r/baseball, /r/IAmA, /r/thebutton, /r/tifu, /r/gaming, /r/politics.
 
 Whereas the following subreddits are under-gilded:
 
-    /r/pcmasterrace, /r/DestinyTheGame, /r/soccer, /r/DotA2, /r/GlobalOffensive, /r/hockey, /r/movies, /r/SquaredCircle.  
+> /r/pcmasterrace, /r/DestinyTheGame, /r/soccer, /r/DotA2, /r/GlobalOffensive, /r/hockey, /r/movies, /r/SquaredCircle.  
 
 The mean length of a gilded comment’s body is 629 characters (4.5 times the length of a tweet on Twitter).  For comparison, the mean length of the comment bodies from the first 10,000 rows in the dataset (not pure random) is 147.  Longer comments have a higher gilding rate than shorter comments.
 
@@ -69,7 +72,6 @@ The data set has a total size of 30GB.  For more in-depth analysis, I’ve reduc
 
 Users were only allowed a single press of the button, and only users registered before April 1 could participate. User flair was awarded to pressers according to how many seconds were left on the timer when they pressed the button.
 
-<center>
 | Time Clicked      | Color  |
 | ------------      | -----  |
 | 60s-52s           | Purple |
@@ -81,7 +83,6 @@ Users were only allowed a single press of the button, and only users registered 
 | Did not click     | Gray   |
 | Not able to click | White  |
 | Cheater           | Purple |
-</center>
 
 As authors have my comments, I’ve selected the most recent comment of each unique author to look at flair distributions.  Of the 135,670 comments, there are 43,618 unique authors plus 10,875 occurrences of [deleted] where the author is unknown.  Ignoring the [deleted] accounts, the distribution of comments per author:
 
@@ -110,7 +111,7 @@ Next, I’ve plotted the distribution of click times as reported in the flair (i
 There are peaks at around when a new flair color first becomes available.  There is a strong signal at t=0s and t=1s, where users are trying to keep the timer alive.  There is also a strong peak at t=42s.  This particular number must [have some meaning](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#Answer_to_the_Ultimate_Question_of_Life.2C_the_Universe.2C_and_Everything_.2842.29).  By far though, the most common click time was t=60s among vocal reddit users.  
 
 
-Predicting Flair Color:
+### Predicting Flair Color
 
 If the flairs of each user were turned off, could we predict what flair they were given, based on the body of the comment?  We’ll build a model to determine if we can.  This model assumes that the body of a comment has correlations with the flair assigned to a user.  
 
@@ -124,7 +125,10 @@ For our first model, we look only at comments with flair == ‘no-press’ and �
 
 The features with the strongest coefficients include (from strongest to less strong):
 
-    filthy non, grey, shade, towel, waited, orange, day presser, regrets, pure, 60s, remain, yellow, wanted, tempted, lucky, team60s, presser, just pressed, clicked, signed, felt, stay, green, pressers, regret, temptation, filthy pressers, red, lurking, strong
+    filthy non, grey, shade, towel, waited, orange, day presser, regrets, 
+    pure, 60s, remain, yellow, wanted, tempted, lucky, team60s, presser, 
+    just pressed, clicked, signed, felt, stay, green, pressers, regret, 
+    temptation, filthy pressers, red, lurking, strong
 
 <center>
 ![thebutton_wordcloud](figures/thebutton_wordcloud.png)
@@ -134,7 +138,6 @@ I also tried fitting a gradient boosting classifier to the training set.  I redu
 
 We now look at a model that attempts to recover the flair color of a comment.  Here, only comments with flair_css_class == ‘press-?’ are considered.  With a logistic regression, the accuracy is 0.43, with the following confusion matrix:
 
-<center>Prediction
 |         | press-6 | press-5 | press-4 | press-3 | press-2 | press-1 |
 | ------- | ------- | ------- | ------- | ------- | ------- | ------- |
 | press-6 | 2823    |    10   |     3   |     4   |     9   |   660   |
@@ -143,11 +146,8 @@ We now look at a model that attempts to recover the flair color of a comment.  H
 | press-3 | 505     |    0    |    3    |   57    |    9    |  169    |
 | press-2 | 666     |    4    |    2    |    0    |   94    |  280    |
 | press-1 | 841     |    2    |    4    |    3    |    7    | 1192    |
-</center>
 
 Using a gradient boosting model, the number of True Positives increases for all classes, but decreases for the Press-1 class.  The accuracy remains small at 0.435.
-
-
 
 
 # /r/worldnews
@@ -190,25 +190,14 @@ Using box plots, we can see more clearly that the scores are sharply peaked at s
 
 Finally, some word clouds created from comments in /r/worldnews on a few different days of the month.
 
-<center>
+2015-05-04
 ![worldnews_wordcloud_05_04](figures/worldnews_wordcloud_05-04.png)
 
-2015-05-04
-
+2015-05-13
 ![worldnews_wordcloud_05_13](figures/worldnews_wordcloud_05-13.png)
 
-2015-05-13
-
+2015-05-18
 ![worldnews_wordcloud_05_18](figures/worldnews_wordcloud_05-18.png)
 
-2015-05-18
-
-![worldnews_wordcloud_05_29](figures/worldnews_wordcloud_05-29.png)
-
 2015-05-29
-</center>
-
-
-
-
-
+![worldnews_wordcloud_05_29](figures/worldnews_wordcloud_05-29.png)
