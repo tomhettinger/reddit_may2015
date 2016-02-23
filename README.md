@@ -1,6 +1,6 @@
 # Reddit Comments May 2015
 
-This is a short exploratory analysis of comments posted on the [www.reddit.com](https://www.reddit.com) website during the month of May 2015.  The data can be retrieved here from [www.kaggle.com](https://www.kaggle.com/reddit/reddit-comments-may-2015).  In the exploration I determined which subreddits were the most commented during the month of May.  I produced statistics regarding various attributes of comments (flair, edits, gold, etc.).  I also looked at comments that had received Reddit Gold, and compared them with the general population of comments.  For the subreddit /r/thebutton, I used text mining to build a predictive model that was able to forecast whether or not somebody pushed The Button, based on the body of a comment.  I also took a quick look at /r/worldnews hoping to find correlations among comment age, comment score, and the depth of a comment.  Finally, I produced a few wordclouds using comment text for /r/worldnews on various days.
+This is a short exploratory analysis of comments posted on the [www.reddit.com](https://www.reddit.com) website during the month of May 2015.  The data can be retrieved here from [www.kaggle.com](https://www.kaggle.com/reddit/reddit-comments-may-2015).  I used the pandas and sklearn Python packages for data management and analysis.  For figures, I used matplotlib and seaborn.  In the exploration I determined which subreddits were the most commented during the month of May.  I produced statistics regarding various attributes of comments (flair, edits, gold, etc.).  I also looked at comments that had received Reddit Gold, and compared them with the general population of comments.  For the subreddit /r/thebutton, I used text mining to build a predictive model that was able to forecast whether or not somebody pushed The Button, based on the body of a comment.  I also took a quick look at /r/worldnews hoping to find correlations among comment age, comment score, and the depth of a comment.  Finally, I produced a few wordclouds using comment text for /r/worldnews on various days.
 
 
 
@@ -68,9 +68,23 @@ The mean length of a gilded comment’s body is 629 characters (4.5 times the le
 
 ## /r/thebutton
 
-[The Button](https://www.reddit.com/r/thebutton) was a meta-game and social experiment hosted by Reddit that featured an online button and countdown timer that would reset each time the button was pressed. The experiment was hosted on the social networking website Reddit beginning on April 1 and was active until June 5, 2015. [https://en.wikipedia.org/wiki/The_Button_(Reddit)](https://en.wikipedia.org/wiki/The_Button_(Reddit))
+[The Button](https://www.reddit.com/r/thebutton) was a meta-game and social experiment hosted by Reddit that featured an online button and countdown timer that would reset each time the button was pressed. The experiment was hosted on the social networking website Reddit beginning on April 1 and was active until June 5, 2015, ending with over 1 million button clicks. [https://en.wikipedia.org/wiki/The_Button_(Reddit)](https://en.wikipedia.org/wiki/The_Button_(Reddit))
 
-Users were only allowed a single press of the button, and only users registered before April 1 could participate. User flair was awarded to pressers according to how many seconds were left on the timer when they pressed the button.
+
+##### The vocal minority
+
+Let's look at the comment frequency of authors.  Of the 135,670 comments in /r/thebutton, there were 43,618 unique authors, plus 10,875 comments where the author was unknown ([deleted] comments).  Ignoring the [deleted] comments, the distribution of comment count per author looks like
+
+![author_comment_counts](figures/author_comment_counts.png)
+
+Most authors have relatively few comments, but several have an extraordinary number of comments.  To determine how much these vocal individuals contribute to the entire comment count, I've plotted the cumulative total comments, as a function of increasing author comment frequency.
+
+![author_cumsum](figures/author_cumsum.png)
+
+
+##### 37 pieces of flair minimum
+
+Users were only allowed a single press of the button, and only users registered before April 1 could participate. Upon clicking, the button timer was reset to 60s, and flair was awarded to the individual who pressed the button.  Flair wass assigned based on how many seconds were left on the timer when the button was pressed:
 
 | Time Clicked      | Color  |
 | ------------      | -----  |
@@ -84,44 +98,27 @@ Users were only allowed a single press of the button, and only users registered 
 | Not able to click | White  |
 | Cheater           | Purple |
 
-As authors have my comments, I’ve selected the most recent comment of each unique author to look at flair distributions.  Of the 135,670 comments, there are 43,618 unique authors plus 10,875 occurrences of [deleted] where the author is unknown.  Ignoring the [deleted] accounts, the distribution of comments per author:
+Next, I've plotted the distribution of flair types awarded.  As we've seen, authors can have many comments.  I've selected the most recent comment of each author for the purposes of analyzing flair distribution.  I'm also ignoring [deleted] account which have missing values for flair.
 
-<center>
-![author_comment_counts](figures/author_comment_counts.png)
-</center>
-
-and the cumulative total number of comments, as a function of increasing author activity:
-
-<center>
-![author_cumsum](figures/author_cumsum.png)
-</center>
-
-Returning to the flair, the distribution of flair awarded is illustrated here.  I’m using only the most recent comment from any author, and ignoring ‘[deleted]’ authors as they do not have flair.
-
-<center>
 ![flair_dist](figures/flair_dist_unique_author.png)
-</center>
 
-Next, I’ve plotted the distribution of click times as reported in the flair (ignoring values for ‘cheaters’).
+Next, I’ve plotted the distribution of click times as reported in the flair (ignoring values of "cheaters").
 
-<center>
 ![click_times](figures/click_time_dist_unique_author.png)
-</center>
 
-There are peaks at around when a new flair color first becomes available.  There is a strong signal at t=0s and t=1s, where users are trying to keep the timer alive.  There is also a strong peak at t=42s.  This particular number must [have some meaning](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#Answer_to_the_Ultimate_Question_of_Life.2C_the_Universe.2C_and_Everything_.2842.29).  By far though, the most common click time was t=60s among vocal reddit users.  
+We see peaks at times around when a new flair color first becomes available.  There is a peak at 0s <= t <= 3s, where users are trying to keep the timer alive.  There is also a strong peak at t = 42s.  As this time does not reward a new color, this particular number must [have some meaning](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#Answer_to_the_Ultimate_Question_of_Life.2C_the_Universe.2C_and_Everything_.2842.29).  By far though, the most common click time among vocal reddit users was t=60s.
 
 
-##### Predicting Flair Color
+##### Filthy non pressers
 
-If the flairs of each user were turned off, could we predict what flair they were given, based on the body of the comment?  We’ll build a model to determine if we can.  This model assumes that the body of a comment has correlations with the flair assigned to a user.  
+Hypothetical: If the display of user flair was disabled in /r/thebutton, could we predict what flair a user was given based on the body of their comment?  We can use supervised learning to build a model to predict flair.  In doing so we aim to see if the body of a comment has correlations with the flair assigned to a particular user.
 
-We’ll clean the data by removing comments with missing values for flair (including [deleted] authors).  Also, we only keep comments from users with <10 total comments.  These cuts yield a total of 73,427 comments.
+First, I've cleaned the data by removing comments with missing values for flair type (including [deleted] authors).  Additionally, to prevent bias on the most vocal of users, we only keep comments from users with less than 10 total comments in the population.  These cuts yield a total of 73,427 comments to work with.  Each comment body in the corpus was vectorized by TF-IDF.  Words required a minimum document occurence of 5. Bigrams were produced in addition to individual words.  I also excluded common stop words.
 
-For our first model, we look only at comments with flair == ‘no-press’ and ‘press-X’.  We will try to predict whether someone is a presser or a non-presser.  The corpus of comment body’s were TF-IDF vectorized with a min_df=5, including bigrams, and excluding stop words.  I fit a logistic regression on a training set which yielded an accuracy score on the validation set of 0.630, and an ROC AUC of 0.670.
+I started with a simple model, classifying comments as either pressed (flair = "press-X") or has not pressed (flair = "no-press").  Reducing the number of classes simplifies the model and also increases the number of training points in each class.  A random subset of the data was held out as a validation set, with the remaining comments used for training.  I fit a simle logistic regression model on the training set, yielding an accuracy score on the validation set, acc = 0.630, and an ROC area-under-the-curve, AUC = 0.670.
 
-<center>
 ![roc_curve](figures/presser_lr_roc.png)
-</center>
+
 
 The features with the strongest coefficients include (from strongest to less strong):
 
