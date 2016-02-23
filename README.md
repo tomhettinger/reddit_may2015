@@ -1,6 +1,6 @@
 # Reddit Comments May 2015
 
-This is a short exploratory analysis of comments posted on the [www.reddit.com](www.reddit.com) website during the month of May 2015.  The data can be retrieved here from [www.kaggle.com](https://www.kaggle.com/reddit/reddit-comments-may-2015).
+This is a short exploratory analysis of comments posted on the [www.reddit.com](https://www.reddit.com) website during the month of May 2015.  The data can be retrieved here from [www.kaggle.com](https://www.kaggle.com/reddit/reddit-comments-may-2015).
 
 
 
@@ -68,7 +68,7 @@ The data set has a total size of 30GB.  For more in-depth analysis, I’ve reduc
 
 ## /r/thebutton
 
-[The Button](www.reddit.com/r/thebutton) was a meta-game and social experiment hosted by Reddit that featured an online button and countdown timer that would reset each time the button was pressed. The experiment was hosted on the social networking website Reddit beginning on April 1 and was active until June 5, 2015. [https://en.wikipedia.org/wiki/The_Button_(Reddit)](https://en.wikipedia.org/wiki/The_Button_(Reddit))
+[The Button](https://www.reddit.com/r/thebutton) was a meta-game and social experiment hosted by Reddit that featured an online button and countdown timer that would reset each time the button was pressed. The experiment was hosted on the social networking website Reddit beginning on April 1 and was active until June 5, 2015. [https://en.wikipedia.org/wiki/The_Button_(Reddit)](https://en.wikipedia.org/wiki/The_Button_(Reddit))
 
 Users were only allowed a single press of the button, and only users registered before April 1 could participate. User flair was awarded to pressers according to how many seconds were left on the timer when they pressed the button.
 
