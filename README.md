@@ -13,9 +13,7 @@ SELECT subreddit, COUNT(subreddit) AS cnt
 FROM May2015 GROUP BY subreddit;
 ```
 
-<center>
 ![subreddit_popularity](figures/subreddit_popularity.png)
-</center>
 
 Of the 50,138 subreddits, the top 20 most commented subreddits account for 14,688,182 of the 54,504,410 total comments, or 27%. 
 
@@ -24,14 +22,16 @@ With over 50 million comments, site-wide statistics are slow to produce on a mac
 * 0.8% of all comments were authored by ‘distinguished’ individuals ('special', 'admin', 'moderator', etc.)
 * 3.1% of all comments had been edited before the time of data retrieval
 * 0.03% of all comments were gilded (awarded by another user that purchased Reddit Gold)
-* 28.7% of comments that had been gilded, had also been edited
 
 To reduce the burden on RAM, we'll be looking at subsets of the data from here on.
 
 
+
 ## Gilded comments
 
-As mentioned above, 0.03% of comments were gilded.  28.7% of all gilded comments had edits.  The prevalence of edits are attributed, in part, by thank you’s, which are found in 17% of all gilded comments and 50% of all edited, gilded comments.  For example,
+##### Thank you stranger
+
+As mentioned above, gilded comments are rare (0.03% of all comments).  Of those comments that received gold, 28.7% had also been editted.  The prevalence of edits in gilded comments are attributed, in part, by Thank You messages to the gold giver.  Indeed, "Thank" was found in 17% of all gilded comments, and in half of all edited+gilded comments.  For example,
 
     “You can't leave Mouse out!  
     Edit: gold?  Awesome thank you!”
@@ -40,30 +40,29 @@ As mentioned above, 0.03% of comments were gilded.  28.7% of all gilded comments
     “CHICAGO PIZZA > NY PIZZA  
     edit: thanks for the gold kind stranger!”
 
-The distribution of scores is significantly different for the gilded comments than the entire set.  Using randomly selected comments from the entire data set, the distribution of all scores compared to gilded looks like:
+##### Have an upvote
 
-<center>
+The distribution of scores is significantly different for the gilded comments than the entire population of comments.  Below is the distribution of comment scores for all gilded comments in May, along with an equal-sized distribution of comment scores randomly drawn from the general population of comments.
+
 ![gilded_scores](figures/gilded_all_upvote_comparison.png)
-</center>
 
-with (mean, standard deviation) = (536, 1062) and (6, 48) for gilded comments and all comments respectively.  The increased numbers of highly negative scores indicates people are rewarding controversial content as well.
+Gilded comments have scores with mean = 536, std = 1062 compared to all comments with mean = 6, std = 48.  Interestingly, commetns with largely negative scores also received gold, indicating people will reward controversial content as well.
 
-In terms of subreddits, the most gilded subreddits are common with those subreddits with the most comments overall.  Eight of the most gilded subreddits do not appear in the top commented, including:
+##### Gold and subreddits
+
+Not unexpectedly, The most gilded subreddits overlap with the most popular subreddits of May.  Eight of the most gilded subreddits do not appear in the list of top commented, including:
 
 > /r/promos, /r/gifs, /r/baseball, /r/IAmA, /r/thebutton, /r/tifu, /r/gaming, /r/politics.
 
-Whereas the following subreddits are under-gilded:
+whereas the following top subreddits are proportionally under-gilded:
 
 > /r/pcmasterrace, /r/DestinyTheGame, /r/soccer, /r/DotA2, /r/GlobalOffensive, /r/hockey, /r/movies, /r/SquaredCircle.  
 
-The mean length of a gilded comment’s body is 629 characters (4.5 times the length of a tweet on Twitter).  For comparison, the mean length of the comment bodies from the first 10,000 rows in the dataset (not pure random) is 147.  Longer comments have a higher gilding rate than shorter comments.
+##### TL;DR
 
-<center>
+The mean length of a gilded comment’s body is 629 characters (4.5 times the length of a tweet on Twitter).  Compare this with the mean length of comment bodies from 10,000 comments drawn from the general population, 147.  Longer comments have a higher gilding rate than shorter comments.
+
 ![body_length](figures/gilded_body_length.png)
-</center>
-
-The data set has a total size of 30GB.  For more in-depth analysis, I’ve reduced the working data set size by investigating individual subreddits.
-
 
 
 
@@ -112,7 +111,7 @@ Next, I’ve plotted the distribution of click times as reported in the flair (i
 There are peaks at around when a new flair color first becomes available.  There is a strong signal at t=0s and t=1s, where users are trying to keep the timer alive.  There is also a strong peak at t=42s.  This particular number must [have some meaning](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#Answer_to_the_Ultimate_Question_of_Life.2C_the_Universe.2C_and_Everything_.2842.29).  By far though, the most common click time was t=60s among vocal reddit users.  
 
 
-#### Predicting Flair Color
+##### Predicting Flair Color
 
 If the flairs of each user were turned off, could we predict what flair they were given, based on the body of the comment?  We’ll build a model to determine if we can.  This model assumes that the body of a comment has correlations with the flair assigned to a user.  
 
