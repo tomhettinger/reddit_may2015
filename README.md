@@ -141,46 +141,37 @@ Going further, we now look at a model that attempts to recover the flair color o
 | press-2 | 666     |    4    |    2    |    0    |   94    |  280    |
 | press-1 | 841     |    2    |    4    |    3    |    7    | 1192    |
 
+Given the model choice and feature choice, there is poor predicting power of the model to determine which color flair was given to a user, based on their comments.
+
+
 
 # /r/worldnews
 
-I briefly took a look at /r/worldnews.  I engineered two new features from the data. First, I calculated the age of a comment at the time of data retrieval (retrieved_on – created_utc).  The age of the comments may affect the number of sub-comments or score.  The distribution of ages is illustrated here.
+I briefly took a look at comments in /r/worldnews.  I wanted to engineer new features from the limited data set. For the first feature, I calculated the age of a comment at the time of data retrieval using age = retrieved_on – created_utc.  The distribution of ages is illustrated here.
 
-<center>
 ![post_age](figures/worldnews_age.png)
-</center>
 
-The second feature is comment depth.  Using the parent_id, for each comment I was able to trace how many parents comments lived between the given comment and the original thread post.  Top-level comments were given depth=0.  The distribution of comment depth is
+The second feature I engineered is comment depth.  Using the parent_id for each comment, I was able to recursively trace the comment hierarchy to determine how many parent comments lie between the given comment and the original thread post.  Top-level comments were assigned depth = 0, and child comments had depth incremented by 1 per level.
 
-<center>
 ![depth_dist](figures/worldnews_depth.png)
-</center>
 
-I wanted to see if either of these features are related to the comment score.  The distribution of comment scores is shown below, with a median score of 1, and the first and third quartiles at 1 and 3.  Indeed, 90% of comment scores rest between -4 and 20.
+I wanted to see if either of these two features are correlated to the comment score.  The distribution of comment scores in /r/worldnews is shown below.  The scores have a median = 1, and the first and third quartiles sit at score = 1 and score = 3.  Indeed, 90% of comment scores in this subreddit fall between -4 and 20.  Although scores can reach very large numbers, these high-scoring comments occur rarely.
 
-<center>
 ![worldnews_scores](figures/worldnews_scores.png)
-</center>
 
-As seen below there is no correlation with score and comment age (r = -0.001).
+Below I've plotted the average comment score as a function of age (in days).  Bars represent the range containing 95% of comments.  There appears to be no correlation with score and comment age (r = -0.001).
 
-<center>
 ![scoreage_avg](figures/worldnews_scoreage_avg.png)
-</center>
 
-There is more correlation with comment depth (r = -0.065) when using log10(score), but remains low:
+We see slightly more correlation with between score and comment depth (r = -0.065 when using log-score), but the correlation remains low, given the small range in values for the majority of comments.
 
-<center>
 ![scoredepth_avg](figures/worldnews_scoredepth_avg.png)
-</center>
 
-Using box plots, we can see more clearly that the scores are sharply peaked at small values around 1.
+Using box plots, we can see, more clearly, that the scores are sharply centered around small values, and it is the outliers that are driving the correlation of score and comment depth.
 
-<center>
 ![scoredepth_box](figures/worldnews_scoredepth_box.png)
-</center>
 
-Finally, some word clouds created from comments in /r/worldnews on a few different days of the month.
+Finally, to get a pulse of the comment section of /r/worldnews, I produced some word clouds created from the comments of a few different days of the month of May.
 
 2015-05-04
 ![worldnews_wordcloud_05_04](figures/worldnews_wordcloud_05-04.png)
