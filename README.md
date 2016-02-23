@@ -11,7 +11,9 @@ Which subreddits had the most comments in May 2015?
     SELECT subreddit, COUNT(subreddit) AS cnt
     FROM May2015 GROUP BY subreddit;
 
-## ![subreddit_popularity](figures/subreddit_popularity.png)
+<center>
+![subreddit_popularity](figures/subreddit_popularity.png)
+</center>
 
 Of the 50,138 subreddits, the top 20 most commented subreddits account for 14,688,182 / 54,504,410 = 27% of all comments. 
 
@@ -36,7 +38,9 @@ As mentioned above, 0.03% of comments were gilded.  28.7% of all gilded comments
 
 The distribution of scores is significantly different for the gilded comments than the entire set.  Using randomly selected comments from the entire data set, the distribution of all scores compared to gilded looks like:
 
-## ![gilded_scores](figures/gilded_all_upvote_comparison.png)
+<center>
+![gilded_scores](figures/gilded_all_upvote_comparison.png)
+</center>
 
 with (mean, standard deviation) = (536, 1062) and (6, 48) for gilded comments and all comments respectively.  The increased numbers of highly negative scores indicates people are rewarding controversial content as well.
 
@@ -50,7 +54,9 @@ Whereas the following subreddits are under-gilded:
 
 The mean length of a gilded comment’s body is 629 characters (4.5 times the length of a tweet on Twitter).  For comparison, the mean length of the comment bodies from the first 10,000 rows in the dataset (not pure random) is 147.  Longer comments have a higher gilding rate than shorter comments.
 
-## ![body_length](figures/gilded_body_length.png)
+<center>
+![body_length](figures/gilded_body_length.png)
+</center>
 
 The data set has a total size of 30GB.  For more in-depth analysis, I’ve reduced the working data set size by investigating individual subreddits.
 
@@ -79,19 +85,27 @@ Users were only allowed a single press of the button, and only users registered 
 
 As authors have my comments, I’ve selected the most recent comment of each unique author to look at flair distributions.  Of the 135,670 comments, there are 43,618 unique authors plus 10,875 occurrences of [deleted] where the author is unknown.  Ignoring the [deleted] accounts, the distribution of comments per author:
 
-## ![author_comment_counts](figures/author_comment_counts.png)
+<center>
+![author_comment_counts](figures/author_comment_counts.png)
+</center>
 
 and the cumulative total number of comments, as a function of increasing author activity:
 
-## ![author_cumsum](figures/author_cumsum.png)
+<center>
+![author_cumsum](figures/author_cumsum.png)
+</center>
 
 Returning to the flair, the distribution of flair awarded is illustrated here.  I’m using only the most recent comment from any author, and ignoring ‘[deleted]’ authors as they do not have flair.
 
-## ![flair_dist](figures/flair_dist_unique_author.png)
+<center>
+![flair_dist](figures/flair_dist_unique_author.png)
+</center>
 
 Next, I’ve plotted the distribution of click times as reported in the flair (ignoring values for ‘cheaters’).
 
-## ![click_times](figures/click_time_dist_unique_author.png)
+<center>
+![click_times](figures/click_time_dist_unique_author.png)
+</center>
 
 There are peaks at around when a new flair color first becomes available.  There is a strong signal at t=0s and t=1s, where users are trying to keep the timer alive.  There is also a strong peak at t=42s.  This particular number must [have some meaning](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#Answer_to_the_Ultimate_Question_of_Life.2C_the_Universe.2C_and_Everything_.2842.29).  By far though, the most common click time was t=60s among vocal reddit users.  
 
@@ -104,13 +118,17 @@ We’ll clean the data by removing comments with missing values for flair (inclu
 
 For our first model, we look only at comments with flair == ‘no-press’ and ‘press-X’.  We will try to predict whether someone is a presser or a non-presser.  The corpus of comment body’s were TF-IDF vectorized with a min_df=5, including bigrams, and excluding stop words.  I fit a logistic regression on a training set which yielded an accuracy score on the validation set of 0.630, and an ROC AUC of 0.670.
 
-## ![roc_curve](figures/presser_lr_roc.png)
+<center>
+![roc_curve](figures/presser_lr_roc.png)
+</center>
 
 The features with the strongest coefficients include (from strongest to less strong):
 
     filthy non, grey, shade, towel, waited, orange, day presser, regrets, pure, 60s, remain, yellow, wanted, tempted, lucky, team60s, presser, just pressed, clicked, signed, felt, stay, green, pressers, regret, temptation, filthy pressers, red, lurking, strong
 
-## ![thebutton_wordcloud](figures/thebutton_wordcloud.png)
+<center>
+![thebutton_wordcloud](figures/thebutton_wordcloud.png)
+</center>
 
 I also tried fitting a gradient boosting classifier to the training set.  I reduced the dimensionality of the features from over 9000 to 500 using TruncatedSVD.  I then ran the classifier with a learning rate = 0.1, max depth = 3, subsampling = 0.75, and 50 iterations.  The resulting accuracy and AUC are 0.627 and 0.650, respectively.  The logistic model outperformed the gradient boosting classifier (although there was not extensive tuning of gb parameters).
 
@@ -136,36 +154,59 @@ Using a gradient boosting model, the number of True Positives increases for all 
 
 I briefly took a look at /r/worldnews.  I engineered two new features from the data. First, I calculated the age of a comment at the time of data retrieval (retrieved_on – created_utc).  The age of the comments may affect the number of sub-comments or score.  The distribution of ages is illustrated here.
 
-## ![post_age](figures/worldnews_age.png)
+<center>
+![post_age](figures/worldnews_age.png)
+</center>
 
 The second feature is comment depth.  Using the parent_id, for each comment I was able to trace how many parents comments lived between the given comment and the original thread post.  Top-level comments were given depth=0.  The distribution of comment depth is
 
-## IMAGE HERE
+<center>
+![depth_dist](figures/worldnews_depth.png)
+</center>
 
 I wanted to see if either of these features are related to the comment score.  The distribution of comment scores is shown below, with a median score of 1, and the first and third quartiles at 1 and 3.  Indeed, 90% of comment scores rest between -4 and 20.
 
-## IMAGE HERE
+<center>
+![worldnews_scores](figures/worldnews_scores.png)
+</center>
 
 As seen below there is no correlation with score and comment age (r = -0.001).
 
-## IMAGE HERE
+<center>
+![scoreage_avg](figures/worldnews_scoreage_avg.png)
+</center>
 
 There is more correlation with comment depth (r = -0.065) when using log10(score), but remains low:
 
-## IMAGE HERE
+<center>
+![scoredepth_avg](figures/worldnews_scoredepth_avg.png)
+</center>
 
-Using bar plots, we can see more clearly that the scores are sharply peaked at small values around 1.
+Using box plots, we can see more clearly that the scores are sharply peaked at small values around 1.
 
-## IMAGE HERE
+<center>
+![scoredepth_box](figures/worldnews_scoredepth_box.png)
+</center>
 
 Finally, some word clouds created from comments in /r/worldnews on a few different days of the month.
 
-## IMAGE HERE
-## IMAGE HERE
-## IMAGE HERE
-## IMAGE HERE
+<center>
+![worldnews_wordcloud_05_04](figures/worldnews_wordcloud_05-04.png)
 
+2015-05-04
 
+![worldnews_wordcloud_05_13](figures/worldnews_wordcloud_05-13.png)
+
+2015-05-13
+
+![worldnews_wordcloud_05_18](figures/worldnews_wordcloud_05-18.png)
+
+2015-05-18
+
+![worldnews_wordcloud_05_29](figures/worldnews_wordcloud_05-29.png)
+
+2015-05-29
+</center>
 
 
 
